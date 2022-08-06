@@ -3,7 +3,7 @@ services:
   jupyternotebook:
     image: ghcr.io/yanorei32/uthree-ml-image:latest@sha256:e6d2a4ce1557fb3dbe89bfbe5279c052d55b1ceeb780ad27d5fd2e24ec3d51f3
     hostname: jupyternotebook
-    container_name: uthreemlrulia__jupyternotebook
+    container_name: ruliaml__jupyternotebook
 
     restart: unless-stopped
 
@@ -42,7 +42,7 @@ services:
   nginx:
     image: nginx:1.23.1
     hostname: nginx
-    container_name: uthreemlrulia__nginx
+    container_name: ruliaml__nginx
 
     environment:
       HTPASSWD: ${HTPASSWD}
@@ -86,12 +86,12 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:2022.7.1
     hostname: cloudflared
-    container_name: uthreemlrulia__cloudflared
+    container_name: ruliaml__cloudflared
 
     environment:
       TUNNEL_METRICS: 0.0.0.0:9126
       TUNNEL_URL: http://nginx:80
-      TUNNEL_HOSTNAME: jupyter.yr32.net
+      TUNNEL_HOSTNAME: ruliaml.yr32.net
       TUNNEL_LOGFILE: /dev/stdout
 
     command: tunnel
@@ -113,7 +113,7 @@ services:
       cloudflared_internet:
       prometheus__cloudflared:
         aliases:
-          - uthreemlrulia__cloudflared
+          - ruliaml__cloudflared
 
     deploy:
       resources:
@@ -128,7 +128,7 @@ services:
 
 volumes:
   workdir:
-    name: uthreemlrulia__workdir
+    name: ruliaml__workdir
 
 networks:
   prometheus__cloudflared:
@@ -136,15 +136,15 @@ networks:
     external: true
 
   jupyternotebook_nginx:
-    name: uthreemlrulia__jupyternotebook_nginx
+    name: ruliaml__jupyternotebook_nginx
     internal: true
 
   nginx_cloudflared:
-    name: uthreemlrulia__nginx_cloudflared
+    name: ruliaml__nginx_cloudflared
     internal: true
 
   jupyternotebook_internet:
-    name: uthreemlrulia__jupyternotebook_internet
+    name: ruliaml__jupyternotebook_internet
 
   cloudflared_internet:
-    name: uthreemlrulia__cloudflared_internet
+    name: ruliaml__cloudflared_internet
