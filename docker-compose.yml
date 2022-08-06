@@ -3,14 +3,14 @@ services:
   jupyternotebook:
     image: ghcr.io/yanorei32/uthree-ml-image:latest@sha256:e6d2a4ce1557fb3dbe89bfbe5279c052d55b1ceeb780ad27d5fd2e24ec3d51f3
     hostname: jupyternotebook
-    container_name: uthreeml__jupyternotebook
+    container_name: uthreemlrulia__jupyternotebook
 
     restart: unless-stopped
 
     init: true
 
     environment:
-      SHELL: "/bin/zsh"
+      SHELL: "/bin/bash"
 
     volumes:
       - type: volume
@@ -42,7 +42,7 @@ services:
   nginx:
     image: nginx:1.23.1
     hostname: nginx
-    container_name: uthreeml__nginx
+    container_name: uthreemlrulia__nginx
 
     environment:
       HTPASSWD: ${HTPASSWD}
@@ -86,7 +86,7 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:2022.7.1
     hostname: cloudflared
-    container_name: uthreeml__cloudflared
+    container_name: uthreemlrulia__cloudflared
 
     environment:
       TUNNEL_METRICS: 0.0.0.0:9126
@@ -113,7 +113,7 @@ services:
       cloudflared_internet:
       prometheus__cloudflared:
         aliases:
-          - uthreeml__cloudflared
+          - uthreemlrulia__cloudflared
 
     deploy:
       resources:
@@ -128,7 +128,7 @@ services:
 
 volumes:
   workdir:
-    name: uthreeml__workdir
+    name: uthreemlrulia__workdir
 
 networks:
   prometheus__cloudflared:
@@ -136,16 +136,15 @@ networks:
     external: true
 
   jupyternotebook_nginx:
-    name: uthreeml__jupyternotebook_nginx
+    name: uthreemlrulia__jupyternotebook_nginx
     internal: true
 
   nginx_cloudflared:
-    name: uthreeml__nginx_cloudflared
+    name: uthreemlrulia__nginx_cloudflared
     internal: true
 
   jupyternotebook_internet:
-    name: uthreeml__jupyternotebook_internet
+    name: uthreemlrulia__jupyternotebook_internet
 
   cloudflared_internet:
-    name: uthreeml__cloudflared_internet
-
+    name: uthreemlrulia__cloudflared_internet
