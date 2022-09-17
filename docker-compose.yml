@@ -1,16 +1,37 @@
 version: '3.9'
 services:
-  jupyternotebook:
-    image: ghcr.io/yanorei32/uthree-ml-image:latest@sha256:da3c92d39ae84494a8f94eee6105325c607534a72a0db3d2ff4f92f6b13a239e
-    hostname: jupyternotebook
-    container_name: ruliaml__jupyternotebook
-
+  squid:
+    image: datadog/squid@sha256:f7d19d5e3f4163771291d91de393ce667f2327a3e080c39b9b7ea9e19f91488f
+    hostname: squid
+    container_name: ruliaml__squid 
     restart: unless-stopped
 
+    volumes:
+      - type: bind
+        source: ./squid.conf
+        target: /etc/squid/squid.conf
+        read_only: true
+
+    networks:
+      - default
+      - outband
+
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+  jupyternotebook:
+    image: ghcr.io/yanorei32/uthree-ml-image:0.5.3
+    hostname: jupyternotebook
+    container_name: ruliaml__jupyternotebook
+    restart: unless-stopped
     init: true
 
     environment:
       SHELL: "/bin/bash"
+      http_proxy: http://squid:3128
+      https_proxy: http://squid:3128
 
     volumes:
       - type: volume
@@ -18,8 +39,7 @@ services:
         target: /root
 
     networks:
-      - jupyternotebook_nginx
-      - jupyternotebook_internet
+      - default
 
     deploy:
       resources:
@@ -30,63 +50,22 @@ services:
             - driver: nvidia
               capabilities: [gpu]
 
-  nginx:
-    image: nginx:1.23.1
-    hostname: nginx
-    container_name: ruliaml__nginx
-
-    environment:
-      HTPASSWD: ${HTPASSWD}
-
-    restart: unless-stopped
-
-    volumes:
-      - type: bind
-        source: ./nginx.conf
-        target: /etc/nginx/nginx.conf
-        read_only: true
-
-      - type: bind
-        source: ./command.sh
-        target: /command.sh
-        read_only: true
-
-    command: /command.sh
-
-    networks:
-      - nginx_cloudflared
-      - jupyternotebook_nginx
-
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-
   cloudflared:
     image: cloudflare/cloudflared:2022.8.4-amd64@sha256:52b8a267e4f262846e9eb24eb25e9a0cdd216d2ae489522c27bc25e01772f93e
     hostname: cloudflared
     container_name: ruliaml__cloudflared
+    restart: unless-stopped
 
     environment:
       TUNNEL_METRICS: 0.0.0.0:9126
-      TUNNEL_URL: http://nginx:80
-      TUNNEL_HOSTNAME: ruliaml.yr32.net
       TUNNEL_LOGFILE: /dev/stdout
 
-    command: tunnel
+    command: tunnel run --token ${TUNNEL_TOKEN}
     user: root
 
-    restart: unless-stopped
-
-    volumes:
-      - type: bind
-        source: /etc/cloudflared/cert.pem
-        target: /etc/cloudflared/cert.pem
-        read_only: true
-
     networks:
-      nginx_cloudflared:
-      cloudflared_internet:
+      default:
+      outband:
       prometheus__cloudflared:
         aliases:
           - ruliaml__cloudflared
@@ -105,16 +84,9 @@ networks:
     name: prometheus__cloudflared
     external: true
 
-  jupyternotebook_nginx:
-    name: ruliaml__jupyternotebook_nginx
+  default:
+    name: ruliaml__default
     internal: true
 
-  nginx_cloudflared:
-    name: ruliaml__nginx_cloudflared
-    internal: true
-
-  jupyternotebook_internet:
-    name: ruliaml__jupyternotebook_internet
-
-  cloudflared_internet:
-    name: ruliaml__cloudflared_internet
+  outband:
+    name: ruliaml__outband
