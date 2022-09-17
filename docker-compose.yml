@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   jupyternotebook:
-    image: ghcr.io/yanorei32/uthree-ml-image:latest@sha256:da3c92d39ae84494a8f94eee6105325c607534a72a0db3d2ff4f92f6b13a239e
+    image: ghcr.io/yanorei32/uthree-ml-image:latest@sha256:10bb24ef15b2c85fe727dae2dbe3ea07d721670bed2ec17f573c55e4f2744411
     hostname: jupyternotebook
     container_name: ruliaml__jupyternotebook
 
