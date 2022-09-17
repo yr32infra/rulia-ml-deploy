@@ -1,3 +1,2 @@
 docker-compose.yml
-nginx.conf
-command.sh
+squid.conf
