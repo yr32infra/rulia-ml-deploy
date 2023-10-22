@@ -1,3 +1,6 @@
+# Deprecated
+I completely shifted to LXD Container.
+
 # rulia-ml-deploy
 Deployed on: mitou (compose-cd)
 
